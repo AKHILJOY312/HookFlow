@@ -2,11 +2,13 @@
   "name": "custom-webhook",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "dev": "ts-node-dev src/server.ts",
-    "worker": "ts-node-dev src/worker.ts"
+    "worker": "ts-node-dev src/worker.ts",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

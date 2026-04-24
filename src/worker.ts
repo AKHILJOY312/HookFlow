@@ -3,22 +3,16 @@ import axios from "axios";
 import crypto from "crypto";
 import { redisConfig } from "./config/redis";
 import { FailedWebhook } from "./models/failedWebhook.model";
-import mongoose from "mongoose";
-import * as dotenv from "dotenv"; // 1. Use * as dotenv
-import path from "path";
+import { connectMongo } from "./config/mongo";
+import { WEBHOOK_QUEUE_NAME } from "./constants/queue";
 
-// 2. Point it explicitly to your .env file
-dotenv.config({ path: path.resolve(__dirname, "../.env") });
-
-// 3. Debug check
-console.log("Worker URI Check:", process.env.MONGO_URI ? "Found" : "NOT FOUND");
-mongoose
-  .connect(process.env.MONGO_URI as string)
-  .then(() => console.log("Worker connected to MongoDB 🚀"))
-  .catch((err) => console.error("Worker MongoDB connection error:", err));
+void connectMongo("Worker").catch((error) => {
+  console.error("Worker MongoDB connection error:", error);
+  process.exit(1);
+});
 
 const worker = new Worker(
-  "webhook",
+  WEBHOOK_QUEUE_NAME,
   async (job: Job) => {
     const { url, payload, secret } = job.data;
 
@@ -47,7 +41,6 @@ const worker = new Worker(
     connection: redisConfig,
     concurrency: 5,
 
-    settings: {},
   },
 );
 

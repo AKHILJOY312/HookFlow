@@ -72,7 +72,7 @@ pnpm install
 
 ### 2. Setup environment
 
-Create `.env`:
+Copy `.env.example` to `.env` and adjust values:
 
 ```env
 PORT=3000
@@ -143,11 +143,11 @@ POST /trigger
 
 ## ⚠️ Current Limitations
 
-- No retry mechanism
-- No failure logging
 - No idempotency handling
 - No rate limiting
-- Single worker (no scaling)
+- Single worker process in local setup
+- No authentication/authorization on endpoints
+- No automated tests yet
 
 ---
 
