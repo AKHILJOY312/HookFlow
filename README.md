@@ -6,14 +6,14 @@ A minimal, production-inspired webhook delivery system built with Node.js, TypeS
 
 ## 🧠 Overview
 
-HookFlow allows external systems to subscribe to events and receive real-time updates via HTTP webhooks.
+HookFlow allows external systems to subscribe to events and receive updates via HTTP webhooks.
 
 This project demonstrates core backend concepts like:
 
 - Event-driven architecture
 - Asynchronous processing with queues
 - Worker-based job execution
-- Webhook delivery mechanisms
+- Webhook delivery and retry handling
 
 ---
 
@@ -30,33 +30,32 @@ This project demonstrates core backend concepts like:
 
 ## 🏗️ Architecture
 
-Client registers webhook
-↓
-Event triggered (API)
-↓
-Job added to Redis queue
-↓
-Worker processes job
-↓
-HTTP POST sent to external URL
+Client registers webhook  
+-> Event triggered (API)  
+-> Job added to Redis queue  
+-> Worker processes job  
+-> HTTP POST sent to external URL
 
 ---
 
 ## 📦 Features (Current)
 
-- Register webhook endpoints
+- Register webhook endpoints by event
 - Trigger events manually
 - Queue-based async processing
-- Worker for webhook delivery
-- Basic signature generation
+- Worker for webhook delivery (concurrency: 5)
+- HMAC SHA-256 signature header (`x-signature`)
+- Automatic retries (3 attempts, exponential backoff)
+- Store permanently failed webhook deliveries in MongoDB
+- List and re-queue failed webhooks
 
 ---
 
 ## 🧪 Testing
 
-You can test webhooks using:
+You can test receiver endpoints using:
 
-👉 https://webhook.site
+https://webhook.site
 
 ---
 
@@ -81,6 +80,8 @@ REDIS_HOST=127.0.0.1
 REDIS_PORT=6379
 ```
 
+`MONGO_URI` is required.
+
 ---
 
 ### 3. Start Redis (Docker)
@@ -91,7 +92,7 @@ docker run -p 6379:6379 redis
 
 ---
 
-### 4. Run server
+### 4. Run API server
 
 ```bash
 pnpm dev
@@ -141,23 +142,38 @@ POST /trigger
 
 ---
 
+### List Failed Webhooks
+
+```http
+GET /failed-webhooks
+```
+
+---
+
+### Retry a Failed Webhook
+
+```http
+POST /retry-failed/:id
+```
+
+---
+
 ## ⚠️ Current Limitations
 
 - No idempotency handling
 - No rate limiting
-- Single worker process in local setup
 - No authentication/authorization on endpoints
 - No automated tests yet
+- No dead-letter queue separation beyond failed record storage
 
 ---
 
 ## 🚧 Roadmap
 
-- [ ] Retry mechanism with exponential backoff
-- [ ] Webhook delivery logs
-- [ ] Replay failed webhooks
+- [ ] Webhook delivery logs/observability improvements
 - [ ] Idempotency support
 - [ ] Multi-worker scaling
+- [ ] Endpoint authentication and signature verification examples
 - [ ] Dashboard UI
 
 ---
@@ -169,7 +185,7 @@ This project is designed to help understand:
 - How real webhook systems work (Stripe, GitHub)
 - Queue-based architectures
 - Background job processing
-- System design fundamentals
+- Retry and failure handling patterns
 
 ---
 
